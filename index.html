@@ -1,0 +1,155 @@
+<!doctype html>
+<html>
+  <body>
+    <div id="panel">
+      <table id="table"></table>
+    </div>
+
+    <div>
+      <button id="tick">1tick</button>
+      <button id="start">Start</button>
+      <button id="startFast">Start Fast</button>
+      <button id="stop">stop</button>
+    </div>
+    <div>
+      <button id="glider">Glider</button>
+    </div>
+
+
+    <script>
+      const XSIZE = 30;
+      const YSIZE = 30;
+      let counter = null;
+
+      let data = initData();
+      const table = document.getElementById("table")
+
+      renderTable(data);
+
+      document.getElementById("tick").addEventListener("click", () => {
+        data = nextTick(data);
+        renderTable(data);
+      });
+      document.getElementById("start").addEventListener("click", () => {
+        start(500);
+      });
+      document.getElementById("startFast").addEventListener("click", () => {
+        start(100);
+      });
+      document.getElementById("stop").addEventListener("click", () => {
+        stop();
+      });
+      document.getElementById("glider").addEventListener("click", () => {
+        data = clearData();
+        data[3][5] = true;
+        data[4][6] = true;
+        data[5][4] = true;
+        data[5][5] = true;
+        data[5][6] = true;
+        renderTable(data)
+      });
+      function stop() {
+        if (counter) {
+          clearInterval(counter);
+          counter = null;
+        }
+      }
+      function start(interval) {
+        stop();
+
+        counter = setInterval(() => {
+          data = nextTick(data);
+          renderTable(data)
+        }, interval);
+      }
+
+      function clearData() {
+        const rows = [];
+        for (let i=0; i<YSIZE; i++) {
+          const row = [];
+          for (let j=0; j<XSIZE; j++) {
+            row.push(false);
+          }
+          rows.push(row);
+        }
+        console.log(rows);
+        return rows;
+      }
+
+      function renderTable(rows) {
+        table.innerHTML = '';
+        rows.forEach(row => {
+          const tr = document.createElement("tr")
+          row.forEach(col => {
+            const td = document.createElement("td")
+            td.innerText = col ? "■" : "□";
+            tr.appendChild(td)
+          });
+          table.appendChild(tr)
+        });
+      }
+
+      function initData() {
+        const rows = [];
+        for (let i=0; i<YSIZE; i++) {
+          const row = [];
+          for (let j=0; j<XSIZE; j++) {
+            row[j] = Math.random() > 0.8;
+          }
+          rows.push(row);
+        }
+        return rows;
+      }
+
+      const AROUND_CELL_OFFSET = [
+        [-1, -1],
+        [-1, 0],
+        [-1, +1],
+        [0, -1],
+        [0, +1],
+        [1, -1],
+        [1, 0],
+        [1,1],
+      ];
+
+      function countAroundActiveCell(rows, x, y) {
+        let actives = 0;
+        for (const offset of AROUND_CELL_OFFSET) {
+          const dy = offset[0];
+          const dx = offset[1];
+          const xx = x + dx;
+          const yy = y + dy;
+
+          if (xx < 0 || yy < 0 || xx>rows[0].length-1 || yy>rows.length-1) {
+            continue;
+          }
+          if (rows[yy][xx]) {
+            actives++;
+          }
+        }
+        return actives;
+      }
+
+      function nextTick(rows) {
+        const retval = [];
+        for (let y=0; y<rows.length; y++) {
+          retval[y] = [];
+          for (let x=0; x<rows[0].length; x++) {
+            if (rows[y][x]) {
+              // active cell: there's 2 or 3 active cell around the cell, the cell will be active at next tick.
+              //              otherwise, the cell will become an inactive cell.
+              const active = countAroundActiveCell(rows, x, y);
+              retval[y].push(active === 2 || active === 3);
+            } else {
+              // inactive cell: if there's just 3 active cell around the cell, new active cell arrives.
+              retval[y].push(countAroundActiveCell(rows, x, y) == 3);
+            }
+          }
+        }
+        return retval;
+      }
+    </script>
+
+    <footer>Copyright (C) 2022 tokuhirom</footer>
+  </body>
+</html>
