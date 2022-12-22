@@ -1,5 +1,21 @@
 <!doctype html>
 <html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    table {
+      border-spacing: 0;
+      padding: 0;
+      margin: 0;
+    }
+    tr {
+      padding: 0;
+    }
+    td {
+      padding: 0;
+    }
+  </style>
+</head>
   <body>
     <div id="panel">
       <table id="table"></table>
@@ -13,11 +29,12 @@
     </div>
     <div>
       <button id="glider">Glider</button>
+      <button id="spaceship">Spaceship</button>
     </div>
 
 
     <script>
-      const XSIZE = 30;
+      const XSIZE = 50;
       const YSIZE = 30;
       let counter = null;
 
@@ -46,6 +63,19 @@
         data[5][4] = true;
         data[5][5] = true;
         data[5][6] = true;
+        renderTable(data)
+      });
+      document.getElementById("spaceship").addEventListener("click", () => {
+        data = clearData();
+        data[3][3] = true;
+        data[3][6] = true;
+        data[4][7] = true;
+        data[5][3] = true;
+        data[5][7] = true;
+        data[6][4] = true;
+        data[6][5] = true;
+        data[6][6] = true;
+        data[6][7] = true;
         renderTable(data)
       });
       function stop() {
